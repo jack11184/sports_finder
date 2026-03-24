@@ -1,7 +1,8 @@
 "use client";
 
-import { format, addDays, isSameDay } from "date-fns";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useMemo, useState } from "react";
+import { format, addDays, isSameDay, parse, startOfDay } from "date-fns";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 
 interface DatePickerProps {
   selectedDate: Date;
@@ -12,15 +13,28 @@ export default function DatePicker({
   selectedDate,
   onDateChange,
 }: DatePickerProps) {
-  const today = new Date();
-  const days = Array.from({ length: 14 }, (_, i) => addDays(today, i));
+  const today = startOfDay(new Date());
+  const [windowStart, setWindowStart] = useState<Date>(today);
+
+  const days = useMemo(
+    () => Array.from({ length: 14 }, (_, i) => addDays(windowStart, i)),
+    [windowStart]
+  );
 
   const scrollLeft = () => {
-    onDateChange(addDays(selectedDate, -1));
+    setWindowStart((prev) => addDays(prev, -7));
   };
 
   const scrollRight = () => {
-    onDateChange(addDays(selectedDate, 1));
+    setWindowStart((prev) => addDays(prev, 7));
+  };
+
+  const onPickDate = (value: string) => {
+    if (!value) return;
+    const picked = startOfDay(parse(value, "yyyy-MM-dd", new Date()));
+    onDateChange(picked);
+    // Recenter the visible strip around selected day.
+    setWindowStart(addDays(picked, -6));
   };
 
   return (
@@ -67,6 +81,17 @@ export default function DatePicker({
       >
         <ChevronRight className="w-5 h-5 text-text-secondary" />
       </button>
+
+      <label className="relative p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors flex-shrink-0 cursor-pointer">
+        <Calendar className="w-5 h-5 text-text-secondary" />
+        <input
+          type="date"
+          aria-label="Pick date"
+          value={format(selectedDate, "yyyy-MM-dd")}
+          onChange={(e) => onPickDate(e.target.value)}
+          className="absolute inset-0 opacity-0 cursor-pointer"
+        />
+      </label>
     </div>
   );
 }
