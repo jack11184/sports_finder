@@ -11,8 +11,15 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [captchaAnswer, setCaptchaAnswer] = useState("");
+  const [captchaKey, setCaptchaKey] = useState(0);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const refreshCaptcha = () => {
+    setCaptchaKey((k) => k + 1);
+    setCaptchaAnswer("");
+  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,7 +35,29 @@ export default function SignupPage() {
       return;
     }
 
+    if (!captchaAnswer.trim()) {
+      setError("Enter the characters shown in the image.");
+      return;
+    }
+
     setLoading(true);
+
+    const verifyRes = await fetch("/api/captcha/verify", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answer: captchaAnswer }),
+    });
+
+    if (!verifyRes.ok) {
+      const data = (await verifyRes.json().catch(() => ({}))) as {
+        error?: string;
+      };
+      setError(data.error || "Verification failed. Try a new code.");
+      setLoading(false);
+      refreshCaptcha();
+      return;
+    }
 
     const supabase = createClient();
     const { error } = await supabase.auth.signUp({
@@ -39,6 +68,7 @@ export default function SignupPage() {
     if (error) {
       setError(error.message);
       setLoading(false);
+      refreshCaptcha();
       return;
     }
 
@@ -106,6 +136,43 @@ export default function SignupPage() {
             required
             className="w-full rounded-lg border border-border bg-bg-input px-4 py-3 text-text-primary placeholder-text-muted outline-none transition-colors focus:border-accent"
             placeholder="••••••••"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-sm text-text-secondary">
+              Type the characters you see
+            </span>
+            <button
+              type="button"
+              onClick={refreshCaptcha}
+              className="text-sm text-accent hover:text-accent-hover"
+            >
+              New code
+            </button>
+          </div>
+          <div className="overflow-hidden rounded-lg border border-border bg-bg-input">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/api/captcha?k=${captchaKey}`}
+              alt="Verification code"
+              width={200}
+              height={64}
+              className="block h-16 w-[200px] max-w-full"
+            />
+          </div>
+          <input
+            id="captcha"
+            type="text"
+            value={captchaAnswer}
+            onChange={(e) => setCaptchaAnswer(e.target.value)}
+            autoComplete="off"
+            autoCapitalize="characters"
+            spellCheck={false}
+            maxLength={12}
+            className="w-full rounded-lg border border-border bg-bg-input px-4 py-3 font-mono text-lg tracking-widest text-text-primary placeholder-text-muted outline-none transition-colors focus:border-accent"
+            placeholder="Enter code"
           />
         </div>
 
