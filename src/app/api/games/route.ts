@@ -34,14 +34,16 @@ export async function GET(request: NextRequest) {
     .lte("start_time", dateEnd)
     .order("start_time", { ascending: true });
 
-  // If we have recent cached data (less than 30 min old), return it
+  // If we have recent cached data, return it
+  // Use a short TTL (60s) when any game is in progress, otherwise 30 min
   if (cachedGames && cachedGames.length > 0) {
+    const hasLiveGame = cachedGames.some((g) => g.status === "in_progress");
+    const ttlMs = hasLiveGame ? 60 * 1000 : 30 * 60 * 1000;
     const oldestFetch = new Date(
       Math.min(...cachedGames.map((g) => new Date(g.fetched_at).getTime()))
     );
-    const thirtyMinAgo = new Date(Date.now() - 30 * 60 * 1000);
 
-    if (oldestFetch > thirtyMinAgo) {
+    if (Date.now() - oldestFetch.getTime() < ttlMs) {
       return NextResponse.json({ games: cachedGames, source: "cache" });
     }
   }

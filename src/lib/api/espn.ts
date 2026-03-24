@@ -77,19 +77,27 @@ function mapESPNStatus(state: string, completed: boolean): GameStatus {
 
 function extractBroadcastNetworks(
   event: ESPNEvent
-): string[] {
+): { networks: string[]; tv: string[]; streaming: string[] } {
   const networks: string[] = [];
+  const tv: string[] = [];
+  const streaming: string[] = [];
   const competition = event.competitions?.[0];
-  if (!competition?.broadcasts) return networks;
+  if (!competition?.broadcasts) return { networks, tv, streaming };
 
   for (const broadcast of competition.broadcasts) {
+    const isStreaming = broadcast.type?.shortName === "Web";
     for (const name of broadcast.names) {
       if (!networks.includes(name)) {
         networks.push(name);
+        if (isStreaming) {
+          streaming.push(name);
+        } else {
+          tv.push(name);
+        }
       }
     }
   }
-  return networks;
+  return { networks, tv, streaming };
 }
 
 function eventToGameCache(
@@ -104,8 +112,14 @@ function eventToGameCache(
   const awayTeam = competition.competitors.find((c) => c.homeAway === "away");
   if (!homeTeam || !awayTeam) return null;
 
-  const broadcastNetworks = extractBroadcastNetworks(event);
+  const { networks, tv, streaming } = extractBroadcastNetworks(event);
   const roundInfo = competition.notes?.[0]?.headline || null;
+  const status = mapESPNStatus(event.status.type.state, event.status.type.completed);
+
+  const homeScoreRaw = homeTeam.score;
+  const awayScoreRaw = awayTeam.score;
+  const homeScore = homeScoreRaw !== undefined ? parseInt(homeScoreRaw, 10) : null;
+  const awayScore = awayScoreRaw !== undefined ? parseInt(awayScoreRaw, 10) : null;
 
   return {
     external_id: `espn-${leagueKey}-${event.id}`,
@@ -115,19 +129,18 @@ function eventToGameCache(
     away_team_id: `${teamIdPrefix}-${awayTeam.team.abbreviation.toLowerCase()}`,
     away_team_name: awayTeam.team.displayName,
     start_time: event.date,
-    status: mapESPNStatus(
-      event.status.type.state,
-      event.status.type.completed
-    ),
+    status,
     venue: competition.venue?.fullName || null,
-    broadcast_info: broadcastNetworks.length > 0
-      ? { networks: broadcastNetworks }
+    broadcast_info: networks.length > 0
+      ? { networks, tv, streaming }
       : null,
     round_info: roundInfo,
     home_team_record: homeTeam.records?.[0]?.summary || null,
     away_team_record: awayTeam.records?.[0]?.summary || null,
     home_team_logo: homeTeam.team.logo || null,
     away_team_logo: awayTeam.team.logo || null,
+    home_score: homeScore,
+    away_score: awayScore,
   };
 }
 

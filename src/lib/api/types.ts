@@ -39,6 +39,7 @@ export interface ESPNCompetition {
 export interface ESPNCompetitor {
   id: string;
   homeAway: "home" | "away";
+  score?: string; // present for in-progress and final games
   team: {
     id: string;
     name: string;

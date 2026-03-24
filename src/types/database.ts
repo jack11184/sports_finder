@@ -105,6 +105,8 @@ export interface GameCache {
 
 export interface BroadcastInfo {
   networks?: string[];
+  tv?: string[];         // TV/cable networks (from ESPN broadcast type)
+  streaming?: string[];  // Streaming services (from ESPN broadcast type)
   [key: string]: unknown;
 }
 

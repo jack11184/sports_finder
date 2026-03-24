@@ -133,6 +133,15 @@ export default function GamesPage() {
     fetchGames();
   }, [fetchGames]);
 
+  // Poll every 60s while any in-progress game is visible
+  useEffect(() => {
+    const hasLiveGame = games.some((g) => g.status === "in_progress");
+    if (!hasLiveGame) return;
+
+    const interval = setInterval(fetchGames, 60_000);
+    return () => clearInterval(interval);
+  }, [games, fetchGames]);
+
   // Filter games
   const filteredGames = games.filter((game) => {
     if (activeFilter === "all") return true;
