@@ -1,6 +1,7 @@
 "use client";
 
 import { GameCache } from "@/types/database";
+import { gameListKey } from "@/lib/game-list-key";
 import GameCard from "./GameCard";
 
 const LEAGUE_LABELS: Record<string, string> = {
@@ -68,7 +69,7 @@ export default function GroupedListView({
           <div className="space-y-2">
             {grouped[league].map((game) => (
               <GameCard
-                key={game.id || game.external_id}
+                key={gameListKey(game)}
                 game={game}
                 channelMappings={channelMappings}
                 userTimezone={userTimezone}

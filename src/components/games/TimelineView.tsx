@@ -1,6 +1,7 @@
 "use client";
 
 import { GameCache } from "@/types/database";
+import { gameListKey } from "@/lib/game-list-key";
 import GameCard from "./GameCard";
 import { format } from "date-fns";
 
@@ -49,7 +50,7 @@ export default function TimelineView({
             <div className="space-y-2">
               {grouped[time].map((game) => (
                 <GameCard
-                  key={game.id || game.external_id}
+                  key={gameListKey(game)}
                   game={game}
                   channelMappings={channelMappings}
                   userTimezone={userTimezone}

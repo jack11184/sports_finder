@@ -98,6 +98,9 @@ export interface GameCache {
   home_team_logo: string | null;
   away_team_logo: string | null;
   fetched_at: string;
+  /** Present when scoreboard includes live/final scores */
+  home_score?: number | null;
+  away_score?: number | null;
 }
 
 export interface BroadcastInfo {

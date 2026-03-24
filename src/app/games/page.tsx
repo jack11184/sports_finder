@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { format } from "date-fns";
 import { createClient } from "@/lib/supabase/client";
-import { useTheme } from "@/components/ThemeProvider";
 import {
   GameCache,
   UserProfile,
@@ -16,21 +15,13 @@ import ViewToggle from "@/components/games/ViewToggle";
 import CardGridView from "@/components/games/CardGridView";
 import GroupedListView from "@/components/games/GroupedListView";
 import TimelineView from "@/components/games/TimelineView";
-import {
-  Sun,
-  Moon,
-  Settings,
-  LogOut,
-  Loader2,
-  AlertCircle,
-  Star,
-} from "lucide-react";
+import { Loader2, AlertCircle, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SportsFinderHeader } from "@/components/layout/SportsFinderHeader";
 
 export default function GamesPage() {
   const router = useRouter();
-  const { theme, toggleTheme } = useTheme();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [activeFilter, setActiveFilter] = useState("all");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -177,48 +168,7 @@ export default function GamesPage() {
 
   return (
     <div className="min-h-screen bg-bg-primary">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-bg-primary px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <h1
-            className="text-xl cursor-pointer text-text-primary"
-            onClick={() => router.push("/")}
-          >
-            Sports Finder
-          </h1>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors"
-              title={
-                theme === "dark"
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
-              }
-            >
-              {theme === "dark" ? (
-                <Sun className="w-5 h-5 text-text-secondary" />
-              ) : (
-                <Moon className="w-5 h-5 text-text-secondary" />
-              )}
-            </button>
-            <Link
-              href="/settings"
-              className="p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors"
-            >
-              <Settings className="w-5 h-5 text-text-secondary" />
-            </Link>
-            <button
-              onClick={handleLogout}
-              className="p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors"
-              title="Sign out"
-            >
-              <LogOut className="w-5 h-5 text-text-secondary" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <SportsFinderHeader onLogout={handleLogout} />
 
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
         {/* Date Picker */}

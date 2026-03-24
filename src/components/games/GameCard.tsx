@@ -158,6 +158,7 @@ export default function GameCard({
     >
       {/* Compact View */}
       <button
+        type="button"
         onClick={() => {
           if (!editingNetwork) setExpanded(!expanded);
         }}
