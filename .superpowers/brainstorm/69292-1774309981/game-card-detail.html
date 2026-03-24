@@ -1,0 +1,131 @@
+<h2>How much detail on each game card?</h2>
+<p class="subtitle">What info should be visible at a glance vs. expanding for more</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #1a1a2e;">
+      <!-- Minimal card -->
+      <div style="background: #16213e; border-radius: 8px; padding: 14px; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="color: #888; font-size: 9px; text-transform: uppercase; margin-bottom: 4px;">NFL</div>
+            <div style="color: #fff; font-size: 13px; font-weight: bold;">KC vs BUF</div>
+            <div style="color: #888; font-size: 10px; margin-top: 2px;">4:30 PM ET</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: #e94560; font-size: 10px;">CBS (Ch. 4)</div>
+            <div style="color: #888; font-size: 9px; margin-top: 2px;">Paramount+</div>
+          </div>
+        </div>
+      </div>
+      <div style="background: #16213e; border-radius: 8px; padding: 14px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="color: #888; font-size: 9px; text-transform: uppercase; margin-bottom: 4px;">EPL</div>
+            <div style="color: #fff; font-size: 13px; font-weight: bold;">ARS vs MCI</div>
+            <div style="color: #888; font-size: 10px; margin-top: 2px;">12:30 PM ET</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: #e94560; font-size: 10px;">Peacock</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Minimal</h3>
+      <p>League, teams (abbreviated), time, and where to watch. Clean and scannable. No logos or extra details.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #1a1a2e;">
+      <!-- Rich card -->
+      <div style="background: #16213e; border-radius: 8px; padding: 14px; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <div style="color: #888; font-size: 9px; text-transform: uppercase;">NFL &middot; AFC Divisional</div>
+          <div style="color: #888; font-size: 9px;">4:30 PM ET</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: #e94560; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: bold;">KC</div>
+            <div>
+              <div style="color: #fff; font-size: 12px; font-weight: bold;">Kansas City Chiefs</div>
+              <div style="color: #888; font-size: 9px;">12-5 &middot; 1st AFC West</div>
+            </div>
+          </div>
+          <div style="color: #888; font-size: 11px;">vs</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div>
+              <div style="color: #fff; font-size: 12px; font-weight: bold; text-align: right;">Buffalo Bills</div>
+              <div style="color: #888; font-size: 9px; text-align: right;">13-4 &middot; 1st AFC East</div>
+            </div>
+            <div style="width: 28px; height: 28px; border-radius: 50%; background: #0038a8; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #fff; font-weight: bold;">BUF</div>
+          </div>
+        </div>
+        <div style="border-top: 1px solid #333; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 6px;">
+            <div style="background: #1a1a2e; border-radius: 4px; padding: 2px 8px; font-size: 9px; color: #e94560; border: 1px solid #e94560;">CBS Ch. 4</div>
+            <div style="background: #1a1a2e; border-radius: 4px; padding: 2px 8px; font-size: 9px; color: #888; border: 1px solid #333;">Paramount+</div>
+          </div>
+          <div style="color: #888; font-size: 9px;">Arrowhead Stadium</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Rich</h3>
+      <p>Team logos, full names, records, venue, league round info. Broadcast channels as pills. More immersive but takes more space.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #1a1a2e;">
+      <!-- Expandable card -->
+      <div style="background: #16213e; border-radius: 8px; padding: 14px; margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="width: 24px; height: 24px; border-radius: 50%; background: #e94560; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; font-weight: bold;">KC</div>
+            <div style="color: #fff; font-size: 12px; font-weight: bold;">Chiefs vs Bills</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: #888; font-size: 10px;">4:30 PM</div>
+            <div style="color: #e94560; font-size: 9px;">CBS &middot; Paramount+</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Expanded state -->
+      <div style="background: #16213e; border-radius: 8px; border: 1px solid #e94560; overflow: hidden;">
+        <div style="padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div style="width: 24px; height: 24px; border-radius: 50%; background: #0038a8; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #fff; font-weight: bold;">LAL</div>
+              <div style="color: #fff; font-size: 12px; font-weight: bold;">Lakers vs Celtics</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="color: #888; font-size: 10px;">7:00 PM</div>
+              <div style="color: #e94560; font-size: 9px;">ESPN &middot; ESPN+</div>
+            </div>
+          </div>
+        </div>
+        <div style="background: #0f1629; padding: 12px 14px; border-top: 1px solid #333;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+            <div style="color: #888; font-size: 9px;">NBA &middot; Regular Season</div>
+            <div style="color: #888; font-size: 9px;">Crypto.com Arena</div>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <div style="color: #888; font-size: 9px;">LAL 30-20 &middot; 5th West</div>
+            <div style="color: #888; font-size: 9px;">BOS 38-12 &middot; 1st East</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <div style="background: #16213e; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #e94560; border: 1px solid #e94560;">ESPN Ch. 206</div>
+            <div style="background: #16213e; border-radius: 4px; padding: 3px 8px; font-size: 9px; color: #888; border: 1px solid #333;">ESPN+</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Compact + Expandable</h3>
+      <p>Minimal by default (teams, time, channels). Click to expand for records, venue, league info, all broadcast options. Best of both worlds.</p>
+    </div>
+  </div>
+</div>
