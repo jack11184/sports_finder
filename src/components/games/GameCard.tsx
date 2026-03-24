@@ -5,7 +5,7 @@ import Image from "next/image";
 import { GameCache, ResolvedChannel } from "@/types/database";
 import { resolveBroadcastInfo } from "@/lib/broadcast";
 import { format } from "date-fns";
-import { ChevronDown, MapPin, Tv, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, MapPin, Plus, Check, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface GameCardProps {
@@ -16,43 +16,18 @@ interface GameCardProps {
 }
 
 const LEAGUE_COLORS: Record<string, string> = {
-  nfl: "#013369",
-  nba: "#1D428A",
-  mlb: "#002D72",
-  nhl: "#000000",
-  mls: "#80B214",
-  epl: "#3D195B",
-  laliga: "#FF4B44",
+  nfl: "#1e40af",
+  nba: "#dc2626",
+  mlb: "#0891b2",
+  nhl: "#7c3aed",
+  mls: "#059669",
+  epl: "#db2777",
+  laliga: "#ea580c",
   ucl: "#003899",
   ncaaf: "#8B0000",
   ncaam: "#FF6600",
-  f1: "#E10600",
+  f1: "#ef4444",
 };
-
-function getStatusBadge(status: string) {
-  switch (status) {
-    case "in_progress":
-      return (
-        <span className="rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-medium text-green-500">
-          LIVE
-        </span>
-      );
-    case "final":
-      return (
-        <span className="rounded-full bg-text-muted/20 px-2 py-0.5 text-xs font-medium text-text-muted">
-          Final
-        </span>
-      );
-    case "postponed":
-      return (
-        <span className="rounded-full bg-yellow-500/20 px-2 py-0.5 text-xs font-medium text-yellow-500">
-          PPD
-        </span>
-      );
-    default:
-      return null;
-  }
-}
 
 function ChannelPill({
   channel,
@@ -63,34 +38,36 @@ function ChannelPill({
 }) {
   const isStreaming = channel.type === "streaming";
 
-  if (isStreaming) {
+  // Cable/broadcast with channel number — accent bg pill
+  if (!isStreaming && channel.channel_number) {
     return (
-      <span className="inline-flex items-center rounded px-2 py-0.5 text-xs bg-bg-secondary text-text-secondary">
-        {channel.network_name}
-      </span>
-    );
-  }
-
-  if (channel.channel_number) {
-    return (
-      <span className="inline-flex items-center rounded px-2 py-0.5 text-xs border border-accent/50 bg-accent-bg text-accent">
+      <span className="inline-flex items-center rounded-lg px-3 py-1.5 text-sm bg-accent text-white">
         {channel.network_name} Ch. {channel.channel_number}
       </span>
     );
   }
 
-  // No channel number — show clickable pill to add one
+  // Streaming — solid border pill
+  if (isStreaming) {
+    return (
+      <span className="inline-flex items-center rounded-lg border border-border px-3 py-1.5 text-sm bg-bg-primary text-text-primary">
+        {channel.network_name}
+      </span>
+    );
+  }
+
+  // No channel number — dashed border with plus icon
   return (
     <button
       onClick={(e) => {
         e.stopPropagation();
         onAddChannel?.(channel.network_name);
       }}
-      className="inline-flex items-center gap-1 rounded border border-dashed border-text-muted/40 px-2 py-0.5 text-xs text-text-muted transition-colors hover:border-accent hover:text-accent"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-1.5 text-sm bg-bg-primary text-text-primary transition-colors hover:border-accent hover:text-accent"
       title={`Add channel number for ${channel.network_name}`}
     >
       {channel.network_name}
-      <Plus className="h-3 w-3" />
+      <Plus className="h-3 w-3 text-text-muted" />
     </button>
   );
 }
@@ -122,6 +99,19 @@ export default function GameCard({
     "???";
 
   const leagueColor = LEAGUE_COLORS[game.league] || "#666";
+
+  const getChannelDisplay = () => {
+    if (primaryChannel) {
+      if (primaryChannel.channel_number) {
+        return `${primaryChannel.network_name} Ch. ${primaryChannel.channel_number}`;
+      }
+      return primaryChannel.network_name;
+    }
+    if (primaryStreaming) {
+      return primaryStreaming.network_name;
+    }
+    return "Broadcast TBD";
+  };
 
   const handleAddChannel = (networkName: string) => {
     setEditingNetwork(networkName);
@@ -157,223 +147,240 @@ export default function GameCard({
     setSaving(false);
   };
 
+  const cancelEditing = () => {
+    setEditingNetwork(null);
+    setChannelInput("");
+  };
+
   return (
     <div
-      className={`cursor-pointer rounded-xl border transition-all ${
-        expanded
-          ? "border-accent shadow-card-lg"
-          : "border-border shadow-card hover:border-border hover:shadow-card-lg"
-      } bg-bg-card`}
-      onClick={() => {
-        if (!editingNetwork) setExpanded(!expanded);
-      }}
+      className="rounded-xl border overflow-hidden transition-all bg-bg-card border-border"
     >
-      {/* Compact view */}
-      <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-3">
-          {/* League badge */}
-          <div
-            className="flex h-6 w-6 items-center justify-center rounded text-[9px] font-bold text-white"
-            style={{ backgroundColor: leagueColor }}
-          >
-            {game.league.slice(0, 3).toUpperCase()}
+      {/* Compact View */}
+      <button
+        onClick={() => {
+          if (!editingNetwork) setExpanded(!expanded);
+        }}
+        className="w-full p-4 text-left transition-colors hover:bg-bg-card-hover"
+      >
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Badge + logos stay compact; matchup gets the flexible middle */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div
+              className="rounded px-2 py-1 text-xs font-bold text-white"
+              style={{ backgroundColor: leagueColor }}
+            >
+              {game.league.toUpperCase()}
+            </div>
+            <div className="flex items-center gap-2">
+              {game.away_team_logo ? (
+                <Image
+                  src={game.away_team_logo}
+                  alt={game.away_team_name}
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 rounded-full object-contain bg-bg-primary"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-bg-primary text-[10px] font-bold text-text-secondary">
+                  {awayAbbr}
+                </div>
+              )}
+              {game.home_team_logo ? (
+                <Image
+                  src={game.home_team_logo}
+                  alt={game.home_team_name}
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 rounded-full object-contain bg-bg-primary"
+                  unoptimized
+                />
+              ) : (
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-bg-primary text-[10px] font-bold text-text-secondary">
+                  {homeAbbr}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Teams */}
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2">
+          <p className="line-clamp-2 min-w-0 flex-1 text-pretty text-sm leading-snug text-text-primary">
+            <span className="text-text-primary">{game.away_team_name}</span>
+            <span className="mx-1.5 text-text-muted">vs</span>
+            <span className="text-text-primary">{game.home_team_name}</span>
+          </p>
+
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="min-w-0 text-right">
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                {game.status === "in_progress" && (
+                  <span className="inline-block rounded px-2 py-0.5 text-xs font-medium bg-live-green text-bg-primary">
+                    LIVE
+                  </span>
+                )}
+                {game.status === "final" && (
+                  <span className="inline-block rounded px-2 py-0.5 text-xs font-medium bg-text-muted text-text-primary">
+                    Final
+                  </span>
+                )}
+                {game.status === "postponed" && (
+                  <span className="inline-block rounded px-2 py-0.5 text-xs font-medium bg-yellow-500 text-bg-primary">
+                    PPD
+                  </span>
+                )}
+                <span className="whitespace-nowrap text-sm text-text-primary">
+                  {timeString}
+                </span>
+              </div>
+              <p className="mt-0.5 max-w-[min(100%,14rem)] text-xs text-text-secondary sm:ml-auto sm:max-w-[16rem]">
+                <span className="block truncate text-right">
+                  {getChannelDisplay()}
+                </span>
+              </p>
+            </div>
+
+            {expanded ? (
+              <ChevronUp className="h-5 w-5 shrink-0 text-text-muted" />
+            ) : (
+              <ChevronDown className="h-5 w-5 shrink-0 text-text-muted" />
+            )}
+          </div>
+        </div>
+      </button>
+
+      {/* Expanded View */}
+      {expanded && (
+        <div className="px-4 pb-4 space-y-4 border-t border-border">
+          {/* Team Details */}
+          <div className="space-y-3 pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 {game.away_team_logo ? (
                   <Image
                     src={game.away_team_logo}
                     alt={game.away_team_name}
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 object-contain"
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 rounded-full object-contain bg-bg-primary"
                     unoptimized
                   />
                 ) : (
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/15 text-[10px] font-bold text-accent">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-bg-primary text-sm font-bold text-text-secondary">
                     {awayAbbr}
                   </div>
                 )}
-                <span className="text-xs text-text-muted">@</span>
+                <div>
+                  <p className="text-text-primary">{game.away_team_name}</p>
+                  {game.away_team_record && (
+                    <p className="text-xs text-text-muted">
+                      {game.away_team_record}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {game.home_score != null && game.away_score != null && (
+                <p className="text-xl text-text-primary">{game.away_score}</p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
                 {game.home_team_logo ? (
                   <Image
                     src={game.home_team_logo}
                     alt={game.home_team_name}
-                    width={28}
-                    height={28}
-                    className="h-7 w-7 object-contain"
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 rounded-full object-contain bg-bg-primary"
                     unoptimized
                   />
                 ) : (
-                  <div className="flex h-7 w-7 items-center justify-center rounded-full bg-accent/15 text-[10px] font-bold text-accent">
+                  <div className="w-9 h-9 rounded-full flex items-center justify-center bg-bg-primary text-sm font-bold text-text-secondary">
                     {homeAbbr}
                   </div>
                 )}
-              </div>
-              <span className="text-sm font-semibold text-text-primary">
-                {awayAbbr} vs {homeAbbr}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <div className="text-right">
-            <div className="flex items-center gap-2">
-              {getStatusBadge(game.status)}
-              <span className="text-sm text-text-secondary">{timeString}</span>
-            </div>
-            <div className="mt-0.5 flex items-center gap-1.5">
-              {primaryChannel && (
-                <span className="text-xs text-accent">
-                  {primaryChannel.network_name}
-                  {primaryChannel.channel_number &&
-                    ` (Ch. ${primaryChannel.channel_number})`}
-                </span>
-              )}
-              {primaryStreaming && primaryChannel && (
-                <span className="text-xs text-text-muted">|</span>
-              )}
-              {primaryStreaming && (
-                <span className="text-xs text-text-secondary">
-                  {primaryStreaming.network_name}
-                </span>
-              )}
-              {!primaryChannel && !primaryStreaming && (
-                <span className="text-xs text-text-muted">Broadcast TBD</span>
-              )}
-            </div>
-          </div>
-          <ChevronDown
-            className={`h-4 w-4 text-text-muted transition-transform ${
-              expanded ? "rotate-180" : ""
-            }`}
-          />
-        </div>
-      </div>
-
-      {/* Expanded view */}
-      {expanded && (
-        <div className="border-t border-border bg-bg-secondary/50 px-4 py-3">
-          <div className="mb-3 flex items-center justify-between text-xs text-text-secondary">
-            <span>
-              {game.league.toUpperCase()}
-              {game.round_info && ` · ${game.round_info}`}
-            </span>
-            {game.venue && (
-              <span className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {game.venue}
-              </span>
-            )}
-          </div>
-
-          {/* Full team names with records */}
-          <div className="mb-3 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              {game.away_team_logo && (
-                <Image
-                  src={game.away_team_logo}
-                  alt={game.away_team_name}
-                  width={36}
-                  height={36}
-                  className="h-9 w-9 object-contain"
-                  unoptimized
-                />
-              )}
-              <div>
-                <div className="text-sm font-medium text-text-primary">
-                  {game.away_team_name}
+                <div>
+                  <p className="text-text-primary">{game.home_team_name}</p>
+                  {game.home_team_record && (
+                    <p className="text-xs text-text-muted">
+                      {game.home_team_record}
+                    </p>
+                  )}
                 </div>
-                {game.away_team_record && (
-                  <div className="text-xs text-text-muted">
-                    {game.away_team_record}
-                  </div>
-                )}
               </div>
-            </div>
-            <span className="text-xs text-text-muted">at</span>
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <div className="text-sm font-medium text-text-primary">
-                  {game.home_team_name}
-                </div>
-                {game.home_team_record && (
-                  <div className="text-xs text-text-muted">
-                    {game.home_team_record}
-                  </div>
-                )}
-              </div>
-              {game.home_team_logo && (
-                <Image
-                  src={game.home_team_logo}
-                  alt={game.home_team_name}
-                  width={36}
-                  height={36}
-                  className="h-9 w-9 object-contain"
-                  unoptimized
-                />
+              {game.home_score != null && game.away_score != null && (
+                <p className="text-xl text-text-primary">{game.home_score}</p>
               )}
             </div>
           </div>
 
-          {/* All broadcast options */}
-          {channels.length > 0 ? (
-            <div className="flex flex-wrap items-center gap-2">
-              <Tv className="h-4 w-4 text-text-muted" />
-              {channels.map((channel, i) => (
-                <ChannelPill
-                  key={i}
-                  channel={channel}
-                  onAddChannel={handleAddChannel}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-xs text-text-muted">
-              <Tv className="h-4 w-4" />
-              Broadcast TBD
+          {/* Venue */}
+          {game.venue && (
+            <div className="flex items-start gap-2">
+              <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-text-secondary" />
+              <p className="text-sm text-text-secondary">{game.venue}</p>
             </div>
           )}
 
-          {/* Inline channel editor */}
-          {editingNetwork && (
-            <div
-              className="mt-3 flex items-center gap-2 rounded-lg border border-accent/30 bg-bg-card p-3"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <span className="text-xs text-text-secondary">
-                Channel # for <strong className="text-accent">{editingNetwork}</strong>:
-              </span>
-              <input
-                type="text"
-                value={channelInput}
-                onChange={(e) => setChannelInput(e.target.value)}
-                placeholder="e.g. 206"
-                autoFocus
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSaveChannel();
-                  if (e.key === "Escape") setEditingNetwork(null);
-                }}
-                className="w-20 rounded border border-border bg-bg-input px-2 py-1 text-sm text-text-primary placeholder-text-muted outline-none focus:border-accent"
-              />
-              <button
-                onClick={handleSaveChannel}
-                disabled={saving || !channelInput.trim()}
-                className="rounded bg-accent px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
-              >
-                {saving ? "..." : "Save"}
-              </button>
-              <button
-                onClick={() => setEditingNetwork(null)}
-                className="text-xs text-text-muted hover:text-text-secondary"
-              >
-                Cancel
-              </button>
+          {/* Broadcast Options */}
+          {channels.length > 0 && (
+            <div>
+              <p className="text-xs mb-2 text-text-muted">Watch on:</p>
+              <div className="flex flex-wrap gap-2">
+                {channels.map((channel, i) => {
+                  if (editingNetwork === channel.network_name) {
+                    return (
+                      <div
+                        key={i}
+                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm border bg-bg-primary border-accent"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <span className="text-text-primary">
+                          {channel.network_name} Ch.
+                        </span>
+                        <input
+                          type="text"
+                          value={channelInput}
+                          onChange={(e) => setChannelInput(e.target.value)}
+                          placeholder="###"
+                          className="w-12 px-1 text-sm bg-transparent border-b border-accent text-text-primary focus:outline-none"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") handleSaveChannel();
+                            if (e.key === "Escape") cancelEditing();
+                          }}
+                        />
+                        <button
+                          onClick={handleSaveChannel}
+                          disabled={saving || !channelInput.trim()}
+                          className="p-1 transition-colors disabled:opacity-50"
+                        >
+                          <Check className="w-4 h-4 text-live-green" />
+                        </button>
+                        <button
+                          onClick={cancelEditing}
+                          className="p-1 transition-colors"
+                        >
+                          <X className="w-4 h-4 text-text-muted" />
+                        </button>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <ChannelPill
+                      key={i}
+                      channel={channel}
+                      onAddChannel={handleAddChannel}
+                    />
+                  );
+                })}
+              </div>
             </div>
+          )}
+
+          {channels.length === 0 && (
+            <p className="text-xs text-text-muted">Broadcast TBD</p>
           )}
         </div>
       )}

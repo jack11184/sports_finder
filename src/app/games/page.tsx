@@ -178,15 +178,19 @@ export default function GamesPage() {
   return (
     <div className="min-h-screen bg-bg-primary">
       {/* Header */}
-      <header className="sticky top-0 z-10 border-b border-border bg-bg-primary/95 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-          <h1 className="text-xl font-bold text-text-primary">
+      <header className="sticky top-0 z-50 border-b border-border bg-bg-primary px-6 py-4">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
+          <h1
+            className="text-xl cursor-pointer text-text-primary"
+            onClick={() => router.push("/")}
+          >
             Sports Finder
           </h1>
+
           <div className="flex items-center gap-2">
             <button
               onClick={toggleTheme}
-              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-card"
+              className="p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors"
               title={
                 theme === "dark"
                   ? "Switch to light mode"
@@ -194,42 +198,48 @@ export default function GamesPage() {
               }
             >
               {theme === "dark" ? (
-                <Sun className="h-5 w-5" />
+                <Sun className="w-5 h-5 text-text-secondary" />
               ) : (
-                <Moon className="h-5 w-5" />
+                <Moon className="w-5 h-5 text-text-secondary" />
               )}
             </button>
             <Link
               href="/settings"
-              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-card"
+              className="p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors"
             >
-              <Settings className="h-5 w-5" />
+              <Settings className="w-5 h-5 text-text-secondary" />
             </Link>
             <button
               onClick={handleLogout}
-              className="rounded-lg p-2 text-text-secondary transition-colors hover:bg-bg-card"
+              className="p-2 rounded-lg bg-bg-card hover:bg-bg-card-hover transition-colors"
               title="Sign out"
             >
-              <LogOut className="h-5 w-5" />
+              <LogOut className="w-5 h-5 text-text-secondary" />
             </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl space-y-4 px-4 py-4">
+      <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
         {/* Date Picker */}
         <DatePicker
           selectedDate={selectedDate}
           onDateChange={setSelectedDate}
         />
 
-        {/* Controls */}
-        <div className="flex items-center justify-between gap-4">
-          <LeagueFilter
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            availableLeagues={availableLeagues}
-          />
+        {/* League Filters */}
+        <LeagueFilter
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          availableLeagues={availableLeagues}
+        />
+
+        {/* View Mode Toggle + Game Count */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-text-secondary">
+            {filteredGames.length}{" "}
+            {filteredGames.length === 1 ? "game" : "games"} scheduled
+          </p>
           <ViewToggle activeView={viewMode} onViewChange={setViewMode} />
         </div>
 
@@ -268,7 +278,7 @@ export default function GamesPage() {
             </p>
           </div>
         ) : (
-          <>
+          <div className={viewMode === "grid" ? "w-full" : "space-y-4"}>
             {viewMode === "grid" && (
               <CardGridView
                 games={filteredGames}
@@ -293,7 +303,7 @@ export default function GamesPage() {
                 onChannelAdded={handleChannelAdded}
               />
             )}
-          </>
+          </div>
         )}
       </main>
     </div>

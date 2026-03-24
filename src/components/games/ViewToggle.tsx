@@ -8,10 +8,10 @@ interface ViewToggleProps {
   onViewChange: (view: ViewMode) => void;
 }
 
-const views: { key: ViewMode; icon: typeof LayoutGrid; label: string }[] = [
-  { key: "grid", icon: LayoutGrid, label: "Grid" },
-  { key: "list", icon: List, label: "List" },
-  { key: "timeline", icon: Clock, label: "Timeline" },
+const views: { key: ViewMode; icon: typeof LayoutGrid }[] = [
+  { key: "grid", icon: LayoutGrid },
+  { key: "list", icon: List },
+  { key: "timeline", icon: Clock },
 ];
 
 export default function ViewToggle({
@@ -19,20 +19,18 @@ export default function ViewToggle({
   onViewChange,
 }: ViewToggleProps) {
   return (
-    <div className="flex rounded-lg border border-border bg-bg-card">
-      {views.map(({ key, icon: Icon, label }) => (
+    <div className="flex gap-1 p-1 rounded-lg bg-bg-card">
+      {views.map(({ key, icon: Icon }) => (
         <button
           key={key}
           onClick={() => onViewChange(key)}
-          title={label}
-          className={`flex items-center gap-1.5 px-3 py-2 text-sm transition-colors first:rounded-l-lg last:rounded-r-lg ${
+          className={`p-2 rounded transition-colors ${
             activeView === key
               ? "bg-accent text-white"
-              : "text-text-secondary hover:bg-bg-card-hover"
+              : "text-text-secondary hover:text-text-primary"
           }`}
         >
-          <Icon className="h-4 w-4" />
-          <span className="hidden sm:inline">{label}</span>
+          <Icon className="w-4 h-4" />
         </button>
       ))}
     </div>
