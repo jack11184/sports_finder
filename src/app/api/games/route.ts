@@ -1,20 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
 import { fetchAllGames } from "@/lib/api/espn";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { format } from "date-fns";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const dateParam = searchParams.get("date");
+  const tzOffset = searchParams.get("tz") || "-300"; // default to EST (-5h = -300min)
 
   // Default to today if no date provided
   const date = dateParam || format(new Date(), "yyyyMMdd");
 
-  const supabase = await createClient();
+  // Use admin client to bypass RLS for reading/writing shared cache
+  const supabase = createAdminClient();
 
-  // Check if we have cached games for this date
-  const dateStart = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T00:00:00Z`;
-  const dateEnd = `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T23:59:59Z`;
+  // Build date range in the user's local timezone
+  // tzOffset is in minutes (e.g., -300 for EST, -420 for PST)
+  const offsetMs = parseInt(tzOffset) * 60 * 1000;
+  const year = parseInt(date.slice(0, 4));
+  const month = parseInt(date.slice(4, 6)) - 1;
+  const day = parseInt(date.slice(6, 8));
+
+  // Create start/end of the selected day in the user's timezone, converted to UTC
+  const localStart = new Date(year, month, day, 0, 0, 0);
+  const localEnd = new Date(year, month, day, 23, 59, 59);
+  const dateStart = new Date(localStart.getTime() - offsetMs).toISOString();
+  const dateEnd = new Date(localEnd.getTime() - offsetMs).toISOString();
 
   const { data: cachedGames } = await supabase
     .from("games_cache")

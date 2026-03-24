@@ -69,7 +69,9 @@ export default function GamesPage() {
         setProfile(profileRes.data);
         setViewMode(profileRes.data.preferred_view || "grid");
 
-        // Load channel mappings for user's cable provider
+        const mappings = new Map<string, string>();
+
+        // Load provider defaults first
         if (profileRes.data.cable_provider_id) {
           const { data: channels } = await supabase
             .from("cable_channel_mappings")
@@ -77,9 +79,7 @@ export default function GamesPage() {
             .eq("cable_provider_id", profileRes.data.cable_provider_id);
 
           if (channels) {
-            const mappings = new Map<string, string>();
             for (const ch of channels) {
-              // Use region-specific mapping if available, otherwise nationwide
               if (
                 !ch.region ||
                 (profileRes.data.location &&
@@ -88,9 +88,22 @@ export default function GamesPage() {
                 mappings.set(ch.network_name, ch.channel_number);
               }
             }
-            setChannelMappings(mappings);
           }
         }
+
+        // Layer user custom mappings on top (overrides provider defaults)
+        const { data: userChannels } = await supabase
+          .from("user_channel_mappings")
+          .select("*")
+          .eq("user_id", user.id);
+
+        if (userChannels) {
+          for (const ch of userChannels) {
+            mappings.set(ch.network_name, ch.channel_number);
+          }
+        }
+
+        setChannelMappings(mappings);
       }
 
       if (favoritesRes.data) {
@@ -108,7 +121,8 @@ export default function GamesPage() {
 
     try {
       const dateStr = format(selectedDate, "yyyyMMdd");
-      const response = await fetch(`/api/games?date=${dateStr}`);
+      const tzOffset = new Date().getTimezoneOffset();
+      const response = await fetch(`/api/games?date=${dateStr}&tz=${-tzOffset}`);
       const data = await response.json();
 
       if (data.games) {
@@ -142,6 +156,17 @@ export default function GamesPage() {
   });
 
   const availableLeagues = new Set(games.map((g) => g.league));
+
+  const handleChannelAdded = useCallback(
+    (networkName: string, channelNumber: string) => {
+      setChannelMappings((prev) => {
+        const next = new Map(prev);
+        next.set(networkName, channelNumber);
+        return next;
+      });
+    },
+    []
+  );
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -249,6 +274,7 @@ export default function GamesPage() {
                 games={filteredGames}
                 channelMappings={channelMappings}
                 userTimezone={profile?.timezone || undefined}
+                onChannelAdded={handleChannelAdded}
               />
             )}
             {viewMode === "list" && (
@@ -256,6 +282,7 @@ export default function GamesPage() {
                 games={filteredGames}
                 channelMappings={channelMappings}
                 userTimezone={profile?.timezone || undefined}
+                onChannelAdded={handleChannelAdded}
               />
             )}
             {viewMode === "timeline" && (
@@ -263,6 +290,7 @@ export default function GamesPage() {
                 games={filteredGames}
                 channelMappings={channelMappings}
                 userTimezone={profile?.timezone || undefined}
+                onChannelAdded={handleChannelAdded}
               />
             )}
           </>

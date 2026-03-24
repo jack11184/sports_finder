@@ -21,12 +21,14 @@ interface GroupedListViewProps {
   games: GameCache[];
   channelMappings?: Map<string, string>;
   userTimezone?: string;
+  onChannelAdded?: (networkName: string, channelNumber: string) => void;
 }
 
 export default function GroupedListView({
   games,
   channelMappings,
   userTimezone,
+  onChannelAdded,
 }: GroupedListViewProps) {
   // Group games by league
   const grouped = games.reduce<Record<string, GameCache[]>>((acc, game) => {
@@ -70,6 +72,7 @@ export default function GroupedListView({
                 game={game}
                 channelMappings={channelMappings}
                 userTimezone={userTimezone}
+                onChannelAdded={onChannelAdded}
               />
             ))}
           </div>

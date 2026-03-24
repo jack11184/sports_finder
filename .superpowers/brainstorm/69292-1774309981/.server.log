@@ -4,3 +4,4 @@
 {"source":"user-event","type":"click","text":"1\n          \n          2\n          \n          3\n        \n      \n      Where are you located?\n      \n        Enter ZIP code...\n        or\n        Use my location\n      \n    \n    \n      Step-by-Step Wizard\n      Three dedicated screens: Location > Cable Provider > Favorite Teams. Focused, one thing at a time. Skip button on each step.","choice":"a","id":null,"timestamp":1774310416506}
 {"type":"screen-added","file":"/Users/jack/Documents/Coding Projects/Cursor Projects/sports_finder/.superpowers/brainstorm/69292-1774309981/game-card-detail.html"}
 {"type":"screen-added","file":"/Users/jack/Documents/Coding Projects/Cursor Projects/sports_finder/.superpowers/brainstorm/69292-1774309981/waiting.html"}
+{"type":"server-stopped","reason":"idle timeout"}

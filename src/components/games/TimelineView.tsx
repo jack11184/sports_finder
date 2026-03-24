@@ -8,12 +8,14 @@ interface TimelineViewProps {
   games: GameCache[];
   channelMappings?: Map<string, string>;
   userTimezone?: string;
+  onChannelAdded?: (networkName: string, channelNumber: string) => void;
 }
 
 export default function TimelineView({
   games,
   channelMappings,
   userTimezone,
+  onChannelAdded,
 }: TimelineViewProps) {
   // Group games by hour
   const grouped = games.reduce<Record<string, GameCache[]>>((acc, game) => {
@@ -51,6 +53,7 @@ export default function TimelineView({
                   game={game}
                   channelMappings={channelMappings}
                   userTimezone={userTimezone}
+                  onChannelAdded={onChannelAdded}
                 />
               ))}
             </div>

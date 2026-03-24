@@ -7,12 +7,14 @@ interface CardGridViewProps {
   games: GameCache[];
   channelMappings?: Map<string, string>;
   userTimezone?: string;
+  onChannelAdded?: (networkName: string, channelNumber: string) => void;
 }
 
 export default function CardGridView({
   games,
   channelMappings,
   userTimezone,
+  onChannelAdded,
 }: CardGridViewProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
@@ -22,6 +24,7 @@ export default function CardGridView({
           game={game}
           channelMappings={channelMappings}
           userTimezone={userTimezone}
+          onChannelAdded={onChannelAdded}
         />
       ))}
     </div>

@@ -126,6 +126,8 @@ function eventToGameCache(
     round_info: roundInfo,
     home_team_record: homeTeam.records?.[0]?.summary || null,
     away_team_record: awayTeam.records?.[0]?.summary || null,
+    home_team_logo: homeTeam.team.logo || null,
+    away_team_logo: awayTeam.team.logo || null,
   };
 }
 

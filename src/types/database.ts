@@ -53,6 +53,14 @@ export interface CableChannelMapping {
   updated_at: string;
 }
 
+export interface UserChannelMapping {
+  id: string;
+  user_id: string;
+  network_name: string;
+  channel_number: string;
+  updated_at: string;
+}
+
 export interface Network {
   id: string;
   name: string;
@@ -87,6 +95,8 @@ export interface GameCache {
   round_info: string | null;
   home_team_record: string | null;
   away_team_record: string | null;
+  home_team_logo: string | null;
+  away_team_logo: string | null;
   fetched_at: string;
 }
 

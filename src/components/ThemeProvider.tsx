@@ -41,15 +41,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
-  // Prevent flash by rendering nothing until theme is determined
-  if (!mounted) {
-    return (
-      <html lang="en" data-theme="dark">
-        <body />
-      </html>
-    );
-  }
-
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
